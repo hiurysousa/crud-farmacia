@@ -11,7 +11,7 @@ public class DataBase {
 
     public static Connection getConnection(){
         try {
-            if(conn==null){
+            if(conn==null || conn.isClosed()){
                 String senha = System.getenv("DB_PASSWORD");
                 if (senha == null || senha.isBlank()){
                     throw new IllegalStateException("Configure a variável de ambiente DB_PASSWORD");
@@ -29,6 +29,7 @@ public class DataBase {
         try {
             if (conn != null) {
                 conn.close();
+                conn = null;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
