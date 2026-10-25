@@ -1,4 +1,4 @@
-package model.entities.enums;
+package model.enums;
 
 public enum StatusVenda {
     EM_ABERTO,

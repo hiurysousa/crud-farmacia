@@ -1,8 +1,10 @@
-package model.entities;
+package model;
 
-import model.entities.enums.TipoMedicamento;
-import model.entities.enums.CategoriaRegulatoria;
-import model.entities.enums.TipoUso;
+import model.enums.TipoMedicamento;
+import model.enums.CategoriaRegulatoria;
+import model.enums.TipoUso;
+
+import java.math.BigDecimal;
 
 // Herda de Produto para absorver os dados comerciais (preço, código de barras) e
 // adiciona as propriedades químicas, clínicas e regulatórias do medicamento.
@@ -10,13 +12,13 @@ import model.entities.enums.TipoUso;
 public class Medicamento extends Produto {
 
     private String dosagem;
-    private String principioAtivo;;
-    private String registroAnvisa;;
+    private String principioAtivo;
+    private String registroAnvisa;
     private TipoUso tipoUso;
     private TipoMedicamento tipo;
     private CategoriaRegulatoria categoriaRegulatoria;
 
-    public Medicamento(String nome, String fabricante, double preco, String codigoBarras) {
+    public Medicamento(String nome, String fabricante, BigDecimal preco, String codigoBarras) {
         super(nome, fabricante, preco, codigoBarras);
     }
 

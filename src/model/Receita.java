@@ -1,25 +1,37 @@
-package model.entities;
-import java.util.Date;
+package model;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Receita {
 
     private Long id;
     private Cliente cliente;
     private String numero;
-    private Date dataEmissao;
+    private LocalDate dataEmissao;
     private String nomeMedico;
     private String crmMedico;
     private boolean retida;
+    private final List<ItemReceita> itens = new ArrayList<>();
 
-    public Receita(Long id, Cliente cliente, String numero, Date dataEmissao, String nomeMedico, String crmMedico, boolean retida) {
-        this.id = id;
+    public Receita( Cliente cliente, String numero, LocalDate dataEmissao, String nomeMedico, String crmMedico, boolean retida) {
         this.cliente = cliente;
         this.numero = numero;
         this.dataEmissao = dataEmissao;
         this.nomeMedico = nomeMedico;
         this.crmMedico = crmMedico;
-        this.retida = false; // padrão do banco: DEFAULT FALSE
+        this.retida = retida;
     }
+
+
+    // Cria o item e o vincula a esta receita
+    public void adicionarItem(Medicamento medicamento, int quantidadePrescrita) {
+        itens.add(new ItemReceita(this, medicamento, quantidadePrescrita));
+    }
+
+    // Lista somente leitura: as alterações passam por adicionarItem
+    public List<ItemReceita> getItens() { return Collections.unmodifiableList(itens); }
 
     public Long getId() {
         return id;
@@ -45,11 +57,11 @@ public class Receita {
         this.numero = numero;
     }
 
-    public Date getDataEmissao() {
+    public LocalDate getDataEmissao() {
         return dataEmissao;
     }
 
-    public void setDataEmissao(Date dataEmissao) {
+    public void setDataEmissao(LocalDate dataEmissao) {
         this.dataEmissao = dataEmissao;
     }
 
