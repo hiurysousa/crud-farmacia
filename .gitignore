@@ -34,3 +34,6 @@ bin/
 .aider*
 
 *.iml
+
+### Documentação local ###
+/# SISTEMA DE FARMÁCIA.md
