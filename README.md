@@ -47,7 +47,9 @@ O modelo do projeto prevê as seguintes entidades:
 
 ## Tecnologias e ferramentas
 
-- Java
+- Java 22
+- JavaFX SDK 21.0.13 e FXML
+- Scene Builder 21
 - MySQL
 - JDBC e MySQL Connector/J
 - IntelliJ IDEA
@@ -66,12 +68,66 @@ O modelo do projeto prevê as seguintes entidades:
 5. Na configuração de execução do IntelliJ, adicione a variável de ambiente
    `DB_PASSWORD` com a senha do seu MySQL. A classe `DataBase` deve ler esse
    valor por meio de `System.getenv("DB_PASSWORD")`.
-6. Execute a classe `application.Main` para iniciar o programa.
+6. Execute `application.Main` para testar a conexão JDBC. Para abrir a interface,
+   configure e execute `application.FarmaciaApp` conforme a seção abaixo.
 
 Cada integrante deve configurar sua própria conexão. O código e os scripts SQL
 são compartilhados pelo GitHub; os dados dos bancos locais são independentes.
 Senhas e arquivos de configuração que contenham credenciais não devem ser
 incluídos nos commits.
+
+## Interface JavaFX e Scene Builder
+
+O projeto usa Java 22, JavaFX SDK 21.0.13 e arquivos FXML, sem Maven ou Gradle.
+Cada integrante deve configurar as bibliotecas e a execução no próprio IntelliJ.
+
+1. Em **File > Project Structure > Project**, selecione o JDK 22. Se necessário,
+   adicione o JDK instalado em **Add JDK from Disk**.
+2. Em **Modules > Sources**, marque `src` como **Sources** e `resources` como
+   **Resources** (ou use **Mark Directory as > Resources Root** na pasta).
+   Se o módulo não existir, importe o projeto a partir dos fontes existentes.
+3. Baixe o **JavaFX SDK 21.0.13** para seu sistema e arquitetura na
+   [página oficial da Gluon](https://gluonhq.com/products/javafx/) e extraia-o
+   em uma pasta permanente. JavaFX 27 exige JDK 25 ou superior e não serve para
+   esta configuração com JDK 22.
+4. Em **Project Structure > Libraries > + > Java**, selecione a pasta `lib` do
+   SDK JavaFX e associe a biblioteca ao módulo `farmacia`. Confira também a
+   dependência do MySQL Connector/J em **Modules > Dependencies**.
+5. Em **Run > Edit Configurations > + > Application**, configure:
+   - Nome: `FarmaciaApp`.
+   - Classe principal: `application.FarmaciaApp`.
+   - Módulo: `farmacia`.
+   - JDK/JRE: JDK 22.
+   - Em **Modify options > Add VM options**, informe, ajustando o caminho local:
+
+   ```text
+   --module-path "E:\Program Files\javafx-sdk-21.0.13\lib" --add-modules javafx.controls,javafx.fxml
+   ```
+
+   A biblioteca e o `--module-path` devem apontar para a mesma versão do SDK.
+   Essas opções pertencem à configuração **Application**, não ao Maven Runner.
+   Configure `DB_PASSWORD` também nessa execução quando a interface acessar o banco.
+6. Execute **Build > Rebuild Project** e inicie `FarmaciaApp`. Ao clicar em
+   **Testar integração**, a tela deve exibir **JavaFX integrado!**.
+7. Para editar a tela visualmente, instale o
+   [Scene Builder 21](https://github.com/gluonhq/scenebuilder/releases/tag/21.0.0).
+   No IntelliJ, configure **Settings > Languages & Frameworks > JavaFX > Path to
+   SceneBuilder** com o executável instalado. Abra `resources/view/principal.fxml`
+   por **Open In SceneBuilder**, ou diretamente pelo aplicativo.
+
+Os arquivos da interface ficam em:
+
+```text
+src/application/FarmaciaApp.java       # Inicializa a aplicação JavaFX
+src/controller/PrincipalController.java # Trata os eventos da tela
+resources/view/principal.fxml          # Layout editável no Scene Builder
+```
+
+O FXML é carregado pelo caminho `/view/principal.fxml`, relativo à raiz de recursos.
+Compartilhe os arquivos Java, FXML e a documentação pelo Git. As pastas `.idea/`,
+`out/` e os arquivos `*.iml` são configurações ou saídas locais e estão no
+`.gitignore`. O JDK, os SDKs, o Scene Builder e seus caminhos são configurados
+separadamente em cada computador. Mantenha senhas apenas na configuração local.
 
 ## Banco de dados
 
