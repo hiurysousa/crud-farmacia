@@ -1,4 +1,4 @@
-package model.entities;
+package model;
 
 // Herda de Pessoa para reaproveitar os dados cadastrais básicos (nome, cpf, telefone)
 // e adiciona características específicas de quem consome na farmácia (endereço e pontos).

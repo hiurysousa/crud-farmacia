@@ -40,7 +40,7 @@ CREATE TABLE cliente (
 CREATE TABLE funcionario (
                              pessoa_id BIGINT PRIMARY KEY,
                              matricula VARCHAR(30) NOT NULL,
-                             cargo VARCHAR(20) NOT NULL,
+                             cargoFuncionario VARCHAR(20) NOT NULL,
 
                              CONSTRAINT uk_funcionario_matricula UNIQUE (matricula),
 
@@ -50,7 +50,7 @@ CREATE TABLE funcionario (
                                      ON DELETE RESTRICT ON UPDATE RESTRICT,
 
                              CONSTRAINT ck_funcionario_cargo
-                                 CHECK (cargo IN (
+                                 CHECK (cargoFuncionario IN (
                                                   'ATENDENTE',
                                                   'GERENTE',
                                                   'FARMACEUTICO'

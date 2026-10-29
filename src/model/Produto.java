@@ -1,14 +1,16 @@
-package model.entities;
+package model;
+
+import java.math.BigDecimal;
 
 public abstract class Produto {
     private Long id;
     private String codigoBarras;
     private String nome;
     private String fabricante;
-    private double preco;
+    private BigDecimal preco;
     private boolean ativo;
 
-    public Produto(String nome, String fabricante, double preco, String codigoBarras) {
+    public Produto(String nome, String fabricante, BigDecimal preco, String codigoBarras) {
         this.nome = nome;
         this.fabricante = fabricante;
         this.preco = preco;
@@ -48,11 +50,11 @@ public abstract class Produto {
         this.fabricante = fabricante;
     }
 
-    public double getPreco() {
+    public BigDecimal getPreco() {
         return preco;
     }
 
-    public void setPreco(double preco) {
+    public void setPreco(BigDecimal preco) {
         this.preco = preco;
     }
 

@@ -1,6 +1,6 @@
-package model.entities.enums;
+package model.enums;
 
-public enum Cargo {
+public enum CargoFuncionario {
     //valores baseados no ck_funcionario_cargo do BD
         ATENDENTE,
         GERENTE,

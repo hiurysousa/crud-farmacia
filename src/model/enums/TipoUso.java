@@ -1,4 +1,4 @@
-package model.entities.enums;
+package model.enums;
 
 public enum TipoUso {
     ORAL,

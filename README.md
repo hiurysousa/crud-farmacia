@@ -26,7 +26,7 @@ O modelo do projeto prevê as seguintes entidades:
 - **Pessoa:** classe abstrata com os dados comuns de clientes e funcionários,
   como nome, CPF e telefone.
 - **Cliente:** especialização de Pessoa que inclui endereço e pontos de fidelidade.
-- **Funcionario:** especialização de Pessoa que inclui matrícula e cargo.
+- **Funcionario:** especialização de Pessoa que inclui matrícula e cargoFuncionario.
 - **Farmaceutico:** especialização de Funcionario que inclui o registro no CRF.
 - **Produto:** classe abstrata com os dados comuns dos produtos, como código de
   barras, nome, fabricante e preço.

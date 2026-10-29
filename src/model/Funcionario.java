@@ -1,5 +1,5 @@
-package model.entities;
-import model.entities.enums.Cargo;
+package model;
+import model.enums.CargoFuncionario;
 
 // Herda de Pessoa para os dados de identificação e estende com vínculos corporativos
 // (matrícula e cargo) necessários para os colaboradores da farmácia.
@@ -7,7 +7,7 @@ import model.entities.enums.Cargo;
 public class Funcionario extends Pessoa{
 
     private String matricula;
-    private Cargo cargo;
+    private CargoFuncionario cargo;
 
     public Funcionario(String nome, String cpf) {
         super(nome, cpf);
@@ -19,11 +19,11 @@ public class Funcionario extends Pessoa{
         this.matricula = matricula;
     }
 
-    public Cargo getCargo() {
+    public CargoFuncionario getCargo() {
         return cargo;
     }
 
-    public void setCargo(Cargo cargo) {
+    public void setCargo(CargoFuncionario cargo) {
         this.cargo = cargo;
     }
 }

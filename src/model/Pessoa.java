@@ -1,4 +1,4 @@
-package model.entities;
+package model;
 
 public abstract class Pessoa {
     private Long id;
@@ -49,7 +49,7 @@ public abstract class Pessoa {
         return ativo;
     }
 
-    public void setAtivo(Boolean ativo) {
+    public void setAtivo(boolean ativo) {
         this.ativo = ativo;
     }
 }

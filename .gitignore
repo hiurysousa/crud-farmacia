@@ -32,3 +32,5 @@ bin/
 ## Senha
 .idea/
 .aider*
+
+*.iml

@@ -1,7 +1,12 @@
-package model.entities;
+package model;
 
-import model.entities.enums.StatusVenda;
+import model.enums.StatusVenda;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 // Registra um atendimento. Cliente, receita e farmacêutico são opcionais,
 // conforme as regras do banco; funcionário, data e status são obrigatórios.
@@ -14,13 +19,27 @@ public class Venda {
     private Receita receita;
     private Farmaceutico farmaceutico;
     private StatusVenda status;
-    private double valorTotal;
+    private BigDecimal valorTotal;
+    private final List<ItemVenda> itens = new ArrayList<>();
 
     public Venda(Funcionario funcionario) {
         this.funcionario = funcionario;
         this.dataHora = LocalDateTime.now();      // padrão do banco: CURRENT_TIMESTAMP
         this.status = StatusVenda.EM_ABERTO;      // padrão do banco
-        this.valorTotal = 0.0;                    // padrão do banco
+        this.valorTotal = BigDecimal.ZERO;                    // padrão do banco
+    }
+
+    // O valorUnitario deve vir de produto.getPreco() no momento da venda (RN09).
+    public void adicionarItem(Produto produto, LoteEstoque lote, int quantidade, BigDecimal valorUnitario) {
+        itens.add(new ItemVenda(this, produto, lote, quantidade, valorUnitario));
+    }
+
+    // Soma os subtotais e atualiza valorTotal (RN10: o total é calculado, não recebido da tela)
+    public BigDecimal calcularTotal() {
+        this.valorTotal = itens.stream()
+                .map(ItemVenda::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return this.valorTotal;
     }
 
     public Long getId() { return id; }
@@ -44,6 +63,8 @@ public class Venda {
     public StatusVenda getStatus() { return status; }
     public void setStatus(StatusVenda status) { this.status = status; }
 
-    public double getValorTotal() { return valorTotal; }
-    public void setValorTotal(double valorTotal) { this.valorTotal = valorTotal; }
+    public BigDecimal getValorTotal() { return valorTotal; }
+
+    // Uso restrito ao DAO. O fluxo de venda usa calcularTotal().
+    public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
 }
