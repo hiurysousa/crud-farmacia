@@ -1,45 +1,51 @@
 package application;
+import dao.ClienteDAO;
+import dao.jdbc.ClienteDAOJdbc;
 import db.DataBase;
+import model.Cliente;
 
 import java.sql.*;
+import java.util.Optional;
 
 public class Main {
-    public static void main(String[] args){
-
+    public static void main(String[] args) {
         Connection conn = null;
 
-        conn = DataBase.getConnection();
+        try {
+            // 1. Obtém a conexão segura
+            conn = DataBase.getConnection();
+            ClienteDAO clienteDAO = new ClienteDAOJdbc(conn);
 
-        // 1. Comando de Inserção usando PreparedStatement
-        String sqlInsert = "INSERT INTO pessoa (nome, cpf) VALUES (?, ?)";
+            System.out.println("=== TESTE DE INSERÇÃO DE CLIENTE ===");
+            // Dica: use um CPF diferente se for rodar mais de uma vez, pois CPF é UNIQUE no banco
+            String cpfTeste = "11122233344";
+            Cliente novoCliente = new Cliente("Cliente Teste DAO", cpfTeste);
+            novoCliente.setTelefone("85988887777");
+            novoCliente.setEndereco("Av. Principal, 1000 - Bairro Centro");
+            novoCliente.setFidelidadePontos(15);
 
-        try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
-            psInsert.setString(1, "Witalo");
-            psInsert.setString(2, "00000000000");
+            clienteDAO.inserir(novoCliente);
+            System.out.println(" Sucesso! Cliente inserido com ID: " + novoCliente.getId());
 
-            //executeUpdate é usado para INSERT, UPDATE e DELETE
-            int linhasAfetadas = psInsert.executeUpdate();
-            System.out.println("Cadastro realizado com sucesso! Linhas afetadas: " + linhasAfetadas);
+            System.out.println("\n=== TESTE DE CONSULTA (BUSCA POR ID) ===");
+            Optional<Cliente> clienteEncontrado = clienteDAO.buscarPorId(novoCliente.getId());
 
-        } catch (SQLException e) {
-            System.out.println("Erro ao inserir (provavelmente o CPF já está cadastrado): " + e.getMessage());
-        }
-
-
-        String sql = "SELECT id, nome FROM pessoa WHERE cpf = ?";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setString(1, "00000000000");
-
-            try(ResultSet rs = ps.executeQuery()){
-                if(rs.next()){
-                    System.out.println("ID: " + rs.getLong("id"));
-                    System.out.println("Nome: " + rs.getString("nome"));
-                } else {
-                    System.out.println("Pessoa não encontrada.");
-                }
+            if (clienteEncontrado.isPresent()) {
+                Cliente c = clienteEncontrado.get();
+                System.out.println(" Cliente localizado no banco MySQL:");
+                System.out.println("   ID: " + c.getId());
+                System.out.println("   Nome: " + c.getNome());
+                System.out.println("   CPF: " + c.getCpf());
+                System.out.println("   Telefone: " + c.getTelefone());
+                System.out.println("   Endereço: " + c.getEndereco());
+                System.out.println("   Pontos de Fidelidade: " + c.getFidelidadePontos());
+                System.out.println("   Ativo: " + c.isAtivo());
+            } else {
+                System.out.println("❌ Erro: Cliente não encontrado pelo ID gerado.");
             }
-        } catch (SQLException e){
+
+        } catch (Exception e) {
+            System.err.println("❌ Falha no teste: " + e.getMessage());
             e.printStackTrace();
         } finally {
             DataBase.closeConnection();
