@@ -7,14 +7,15 @@ import model.Cliente;
 import java.sql.*;
 import java.util.Optional;
 
+import dao.DaoFactory;
+
+
 public class Main {
     public static void main(String[] args) {
         Connection conn = null;
 
         try {
-            // 1. Obtém a conexão segura
-            conn = DataBase.getConnection();
-            ClienteDAO clienteDAO = new ClienteDAOJdbc(conn);
+            ClienteDAO clienteDAO = DaoFactory.createClienteDAO();
 
             System.out.println("=== TESTE DE INSERÇÃO DE CLIENTE ===");
             // Dica: use um CPF diferente se for rodar mais de uma vez, pois CPF é UNIQUE no banco
@@ -41,11 +42,11 @@ public class Main {
                 System.out.println("   Pontos de Fidelidade: " + c.getFidelidadePontos());
                 System.out.println("   Ativo: " + c.isAtivo());
             } else {
-                System.out.println("❌ Erro: Cliente não encontrado pelo ID gerado.");
+                System.out.println("Erro: Cliente não encontrado pelo ID gerado.");
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Falha no teste: " + e.getMessage());
+            System.err.println("Falha no teste: " + e.getMessage());
             e.printStackTrace();
         } finally {
             DataBase.closeConnection();
