@@ -45,6 +45,8 @@ public class Venda {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    public List<ItemVenda> getItens() { return Collections.unmodifiableList(itens); }
+
     public LocalDateTime getDataHora() { return dataHora; }
     public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
 
