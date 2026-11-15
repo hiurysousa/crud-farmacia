@@ -196,6 +196,23 @@ public class ReceitaDAOJdbc implements ReceitaDAO {
         }
     }
 
+    @Override
+    public List<Receita> listarTodas() {
+        String sql = baseSelectSql() + " ORDER BY r.data_emissao DESC, r.id DESC";
+        List<Receita> lista = new ArrayList<>();
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                Receita receita = instanciarReceita(rs);
+                carregarItensReceita(receita);
+                lista.add(receita);
+            }
+            return lista;
+        } catch (SQLException e) {
+            throw new PersistenciaException("Erro ao listar todas as receitas: " + e.getMessage(), e);
+        }
+    }
+
     // Consulta SQL base da receita com INNER JOIN em cliente e pessoa
     private String baseSelectSql() {
         return "SELECT r.id, r.cliente_id, r.numero, r.data_emissao, r.nome_medico, r.crm_medico, r.retida, " +

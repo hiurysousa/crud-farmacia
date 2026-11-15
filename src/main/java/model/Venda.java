@@ -47,6 +47,13 @@ public class Venda {
 
     public List<ItemVenda> getItens() { return Collections.unmodifiableList(itens); }
 
+    public void setItens(List<ItemVenda> novosItens) {
+        this.itens.clear();
+        if (novosItens != null) {
+            this.itens.addAll(novosItens);
+        }
+    }
+
     public LocalDateTime getDataHora() { return dataHora; }
     public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
 

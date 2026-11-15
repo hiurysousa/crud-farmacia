@@ -30,4 +30,9 @@ public interface ReceitaDAO {
      * Lista o histórico de receitas emitidas para um determinado cliente.
      */
     List<Receita> listarPorCliente(Long clienteId);
+
+    /**
+     * Lista todas as receitas cadastradas no sistema.
+     */
+    List<Receita> listarTodas();
 }

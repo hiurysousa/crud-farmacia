@@ -16,6 +16,9 @@ public class ItemVenda {
     private BigDecimal valorUnitario;
     private BigDecimal subtotal;
 
+    public ItemVenda() {
+    }
+
     public ItemVenda(Venda venda, Produto produto, LoteEstoque lote, int quantidade, BigDecimal valorUnitario) {
         this.venda = venda;
         this.produto = produto;
