@@ -1,12 +1,10 @@
 package service;
 
 import dao.DaoFactory;
-import dao.LoteEstoqueDAO;
 import dao.ProdutoDAO;
 import exception.RegraNegocioException;
 import exception.ValidacaoException;
 import model.Cosmetico;
-import model.LoteEstoque;
 import model.Medicamento;
 import model.Produto;
 
@@ -18,28 +16,23 @@ import java.util.regex.Pattern;
 
 public class ProdutoService {
 
-    private final ProdutoDAO produtoDAO;
-    private final LoteEstoqueDAO loteDAO;
-
-    // MUDANÇA: expressão regular que aceita apenas dígitos (\d+ = um ou mais números).
-    // Fica como constante estática para ser compilada uma única vez, e não a cada cadastro.
     private static final Pattern SOMENTE_DIGITOS = Pattern.compile("\\d+");
 
+    private final ProdutoDAO produtoDAO;
+
     public ProdutoService() {
-        this(DaoFactory.createProdutoDAO(), DaoFactory.createLoteEstoqueDAO());
+        this(DaoFactory.createProdutoDAO());
     }
 
-    public ProdutoService(ProdutoDAO produtoDAO, LoteEstoqueDAO loteDAO) {
+    public ProdutoService(ProdutoDAO produtoDAO) {
         this.produtoDAO = Objects.requireNonNull(produtoDAO, "ProdutoDAO não pode ser nulo");
-        this.loteDAO = Objects.requireNonNull(loteDAO, "LoteEstoqueDAO não pode ser nulo");
     }
 
     public void cadastrar(Produto produto) {
         validarProduto(produto);
         normalizarDados(produto);
 
-        Optional<Produto> existente = produtoDAO.buscarPorCodigoBarras(produto.getCodigoBarras());
-        if (existente.isPresent()) {
+        if (produtoDAO.buscarPorCodigoBarras(produto.getCodigoBarras()).isPresent()) {
             throw new RegraNegocioException("Já existe um produto cadastrado com o código de barras: " + produto.getCodigoBarras());
         }
 
@@ -48,11 +41,8 @@ public class ProdutoService {
 
     public void atualizar(Produto produto) {
         validarProduto(produto);
-
-        if (produto.getId() == null) {
-            throw new ValidacaoException("O ID do produto é obrigatório para atualização.");
-        }
-        buscarPorId(produto.getId()); // Garante que o produto existe no banco
+        exigirId(produto.getId(), "O ID do produto é obrigatório para atualização.");
+        buscarPorId(produto.getId()); // garante que o produto existe
         normalizarDados(produto);
 
         Optional<Produto> outroComMesmoCodigo = produtoDAO.buscarPorCodigoBarras(produto.getCodigoBarras());
@@ -64,22 +54,18 @@ public class ProdutoService {
     }
 
     public void desativar(Long id) {
-        buscarPorId(id); // Já valida se id == null e se o produto existe
+        buscarPorId(id); // valida id nulo e existência
         produtoDAO.desativar(id);
     }
 
     public Produto buscarPorId(Long id) {
-        if (id == null) {
-            throw new ValidacaoException("O ID para busca não pode ser nulo.");
-        }
+        exigirId(id, "O ID para busca não pode ser nulo.");
         return produtoDAO.buscarPorId(id)
                 .orElseThrow(() -> new RegraNegocioException("Produto com ID " + id + " não encontrado."));
     }
 
     public Produto buscarPorCodigoBarras(String codigoBarras) {
-        if (codigoBarras == null || codigoBarras.isBlank()) {
-            throw new ValidacaoException("O código de barras informado é inválido.");
-        }
+        exigirPreenchido(codigoBarras, "O código de barras informado é inválido.");
         return produtoDAO.buscarPorCodigoBarras(codigoBarras.trim())
                 .orElseThrow(() -> new RegraNegocioException("Produto com código de barras " + codigoBarras + " não encontrado."));
     }
@@ -96,23 +82,8 @@ public class ProdutoService {
     }
 
     public List<Medicamento> buscarPorPrincipioAtivo(String principioAtivo) {
-        if (principioAtivo == null || principioAtivo.isBlank()) {
-            throw new ValidacaoException("O princípio ativo para busca não pode estar vazio.");
-        }
+        exigirPreenchido(principioAtivo, "O princípio ativo para busca não pode estar vazio.");
         return produtoDAO.buscarPorPrincipioAtivo(principioAtivo.trim());
-    }
-
-    /**
-     * Calcula o saldo total em estoque somando apenas as quantidades de lotes válidos e ativos.
-     */
-    public int obterEstoqueTotal(Long produtoId) {
-        if (produtoId == null) {
-            throw new ValidacaoException("O ID do produto não pode ser nulo para cálculo de estoque.");
-        }
-        return loteDAO.listarDisponiveisPorProduto(produtoId)
-                .stream()
-                .mapToInt(LoteEstoque::getQuantidade)
-                .sum();
     }
 
     private void validarProduto(Produto produto) {
@@ -142,40 +113,22 @@ public class ProdutoService {
         if (produto == null) {
             throw new ValidacaoException("O produto não pode ser nulo.");
         }
-        if (produto.getNome() == null || produto.getNome().isBlank()) {
-            throw new ValidacaoException("O nome do produto é obrigatório.");
-        }
-        if (produto.getFabricante() == null || produto.getFabricante().isBlank()) {
-            throw new ValidacaoException("O fabricante do produto é obrigatório.");
-        }
-        if (produto.getCodigoBarras() == null || produto.getCodigoBarras().isBlank()) {
-            throw new ValidacaoException("O código de barras é obrigatório.");
-        }
+        exigirPreenchido(produto.getNome(), "O nome do produto é obrigatório.");
+        exigirPreenchido(produto.getFabricante(), "O fabricante do produto é obrigatório.");
+        exigirPreenchido(produto.getCodigoBarras(), "O código de barras é obrigatório.");
 
-        if (produto.getCodigoBarras() == null || produto.getCodigoBarras().isBlank()) {
-            throw new ValidacaoException("O código de barras é obrigatório.");
-        }
-
-        // MUDANÇA: nova validação exigida pela issue (formato numérico).
-        // Usamos trim() aqui porque o normalizarDados() só roda DEPOIS da validação.
-        // Sem o trim, um código como "  789123  " seria rejeitado por causa dos espaços,
-        // e o seu teste 2 (que envia espaços de propósito) quebraria.
+        // Validado sobre o valor trimado, pois a normalização ocorre depois
         if (!SOMENTE_DIGITOS.matcher(produto.getCodigoBarras().trim()).matches()) {
             throw new ValidacaoException("O código de barras deve conter apenas dígitos.");
         }
-
         if (produto.getPreco() == null || produto.getPreco().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ValidacaoException("O preço do produto deve ser maior que zero.");
+            throw new ValidacaoException("O preço do produto deve ser maior que zero e não pode ser vazio.");
         }
     }
 
     private void validarMedicamento(Medicamento med) {
-        if (med.getPrincipioAtivo() == null || med.getPrincipioAtivo().isBlank()) {
-            throw new ValidacaoException("O princípio ativo é obrigatório para medicamentos.");
-        }
-        if (med.getDosagem() == null || med.getDosagem().isBlank()) {
-            throw new ValidacaoException("A dosagem é obrigatória para medicamentos.");
-        }
+        exigirPreenchido(med.getPrincipioAtivo(), "O princípio ativo é obrigatório para medicamentos.");
+        exigirPreenchido(med.getDosagem(), "A dosagem é obrigatória para medicamentos.");
         if (med.getTipo() == null) {
             throw new ValidacaoException("O tipo de medicamento (Antibiótico, Anti-inflamatório, etc.) é obrigatório.");
         }
@@ -187,6 +140,18 @@ public class ProdutoService {
     private void validarCosmetico(Cosmetico cosm) {
         if (cosm.getCategoriaUso() == null) {
             throw new ValidacaoException("A categoria de uso do cosmético (Cabelo, Pele, etc.) é obrigatória.");
+        }
+    }
+
+    private static void exigirPreenchido(String valor, String mensagem) {
+        if (valor == null || valor.isBlank()) {
+            throw new ValidacaoException(mensagem);
+        }
+    }
+
+    private static void exigirId(Long id, String mensagem) {
+        if (id == null) {
+            throw new ValidacaoException(mensagem);
         }
     }
 }
